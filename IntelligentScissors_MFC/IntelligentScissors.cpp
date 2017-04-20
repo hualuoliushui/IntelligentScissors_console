@@ -1,4 +1,5 @@
 #pragma once
+#include "stdafx.h"
 #include "IntelligentScissors.h"
 #include "MinHeap_self.h"
 
@@ -33,7 +34,7 @@ IntelligentScissors::IntelligentScissors(Mat& image, INTELLIGENT_SCISSORS_MODE _
 	fZ(nullptr), fG(nullptr), D(nullptr),
 	Dlink(nullptr),
 	paths(nullptr), ILC(nullptr),
-	isFirst(true){
+	isFirst(true) {
 	mode = _mode;
 	init();
 }
@@ -93,8 +94,9 @@ void IntelligentScissors::DP(int sx, int sy){
 
 		num++;
 		if (num%target.cols == 0){
+			DP_percent = (1.0*num / size*100.0);
 			cout << "\r" << setfill(' ') << setw(10) << setiosflags(ios::right) << setprecision(4) << 
-				(1.0*num / size*100.0) << "%";
+				DP_percent << "%";
 		}
 
 		int x = q%cols, y = q / cols;
@@ -126,11 +128,16 @@ void IntelligentScissors::DP(int sx, int sy){
 }
 
 void IntelligentScissors::MouseCallbackFunc(int m_event, int x, int y, int flags,void* param){
+	if (param != NULL){
+		DPPercent* pDPPercent = (DPPercent*)param;
+		DP_percent = 0.0f;
+		pDPPercent->pDP_percent = &DP_percent;
+	}
+
 	const char* name = "working";
 
-	static Mat temp = img.clone();
+	temp = img.clone();
 	static int px = 0, py = 0;
-	static vector<int> coldPaths;
 
 	switch (m_event){
 	case CV_EVENT_MOUSEMOVE:
@@ -173,7 +180,7 @@ void IntelligentScissors::MouseCallbackFunc(int m_event, int x, int y, int flags
 
 		cout << "选定点 " << x << " " << y << endl;
 		if (isFirst){
-			cv::imshow(name, img);
+			//cv::imshow(name, img);
 			temp = img.clone();
 			coldPaths.clear();
 			px = x;
@@ -212,14 +219,14 @@ void IntelligentScissors::MouseCallbackFunc(int m_event, int x, int y, int flags
 	default:
 		break;
 	}
-	cv::imshow(name, temp);
+	//cv::imshow(name, temp);
 }
 
 void IntelligentScissors::init(){
 	//灰度图
 	if (img.channels() != 1){
 		cvtColor(img, target, CV_BGR2GRAY);
-		cv::imshow("灰度图", target);
+		//cv::imshow("灰度图", target);
 	}
 	else{
 		target = img;
@@ -290,7 +297,7 @@ void IntelligentScissors::init_fZ(){
 		}
 	}
 
-	cv::imshow("temp", temp);
+	//cv::imshow("temp", temp);
 }
 
 void IntelligentScissors::init_fG_D(){
